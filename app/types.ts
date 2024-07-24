@@ -1,5 +1,6 @@
 export interface Habit {
     id: string;
     name: string;
-    days: boolean[];
-}
+    days: { [key: string]: boolean };
+    streak: number;  
+  }
