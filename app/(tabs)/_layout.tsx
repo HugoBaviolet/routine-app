@@ -3,7 +3,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout(){
     return(
-        <Tabs>
+        <Tabs screenOptions={{
+            headerShown: false
+        }}>
             <Tabs.Screen
             name="index"
             options={{title: 'Home',
@@ -19,7 +21,7 @@ export default function TabLayout(){
             <Tabs.Screen
             name="profile"
             options={{title: 'Profile',
-                tabBarIcon: ({ color }) => <Ionicons name="grid" size={24} color={color} />,
+                tabBarIcon: ({ color }) => <Ionicons name="person" size={24} color={color} />,
             }}
             />
         </Tabs>
