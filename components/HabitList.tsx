@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import HabitRow from './HabitRow';
 import HabitModal from './HabitModal';
@@ -17,7 +17,13 @@ const HabitList: React.FC<HabitListProps> = ({ habits, setHabits }) => {
     setHabits(prevHabits =>
       prevHabits.map(habit =>
         habit.id === habitId
-          ? { ...habit, days: { ...habit.days, [day]: !habit.days[day] } }
+          ? {
+              ...habit,
+              days: {
+                ...habit.days,
+                [day]: habit.days[day] === undefined ? true : !habit.days[day]
+              }
+            }
           : habit
       )
     );
@@ -38,20 +44,20 @@ const HabitList: React.FC<HabitListProps> = ({ habits, setHabits }) => {
   const saveEditedHabit = (editedHabit: Habit) => {
     setHabits(prevHabits =>
       prevHabits.map(habit =>
-        habit.id === editedHabit.id ? editedHabit : habit
+        habit.id === editedHabit.id
+          ? {
+              ...habit,
+              name: editedHabit.name,
+              days: editedHabit.days, // Directly use the edited days
+              streak: editedHabit.streak
+            }
+          : habit
       )
     );
     closeEditModal();
   };
 
-  const renderItem = (data: { item: Habit }, rowMap: any) => (
-    <HabitRow
-      habit={data.item}
-      onToggleDay={(day) => toggleDay(data.item.id, day)}
-    />
-  );
-
-  const renderHiddenItem = (data: { item: Habit }, rowMap: any) => (
+  const renderHiddenItem = (data: { item: Habit }) => (
     <View style={styles.rowBack}>
       <TouchableOpacity
         style={[styles.backRightBtn, styles.backRightBtnLeft]}
@@ -80,12 +86,18 @@ const HabitList: React.FC<HabitListProps> = ({ habits, setHabits }) => {
     <>
       <SwipeListView
         data={habits}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <HabitRow
+            habitName={item.name}
+            days={item.days}
+            onToggleDay={(day) => toggleDay(item.id, day)}
+            streak={item.streak || 0}
+          />
+        )}
         renderHiddenItem={renderHiddenItem}
         rightOpenValue={-150}
         disableRightSwipe
         keyExtractor={(item) => item.id}
-        useNativeDriver={false}
       />
       <HabitModal
         visible={editingHabit !== null}
@@ -126,7 +138,7 @@ const styles = StyleSheet.create({
     width: 75,
   },
   backRightBtnLeft: {
-    backgroundColor: 'blue',
+    backgroundColor: '#007AFF',
     right: 75,
   },
   backRightBtnRight: {

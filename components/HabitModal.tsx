@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { Habit } from '.././app/types';
+import { Habit } from '../app/types';
 
 interface HabitModalProps {
   visible: boolean;
   onClose: () => void;
   onSave: (habit: Habit) => void;
-  habit?: Habit;  // Optional habit for editing
+  habit?: Habit;
 }
 
 const HabitModal: React.FC<HabitModalProps> = ({ visible, onClose, onSave, habit }) => {
@@ -17,10 +17,18 @@ const HabitModal: React.FC<HabitModalProps> = ({ visible, onClose, onSave, habit
   useEffect(() => {
     if (habit) {
       setHabitName(habit.name);
-      setSelectedDays(habit.days);
+      // Initialize selectedDays with existing habit days
+      const initialSelectedDays = daysOfWeek.reduce((acc, day) => {
+        acc[day] = day in habit.days;
+        return acc;
+      }, {} as { [key: string]: boolean });
+      setSelectedDays(initialSelectedDays);
     } else {
       setHabitName('');
-      setSelectedDays({});
+      setSelectedDays(daysOfWeek.reduce((acc, day) => {
+        acc[day] = false;
+        return acc;
+      }, {} as { [key: string]: boolean }));
     }
   }, [habit]);
 
@@ -36,7 +44,12 @@ const HabitModal: React.FC<HabitModalProps> = ({ visible, onClose, onSave, habit
     const savedHabit: Habit = {
       id: habit ? habit.id : Date.now().toString(),
       name: habitName,
-      days: selectedDays,
+      days: Object.entries(selectedDays).reduce((acc, [day, isSelected]) => {
+        if (isSelected) {
+          acc[day] = habit?.days[day] ?? false;
+        }
+        return acc;
+      }, {} as { [key: string]: boolean }),
       streak: habit ? habit.streak : 0,
     };
     onSave(savedHabit);
@@ -81,74 +94,57 @@ const HabitModal: React.FC<HabitModalProps> = ({ visible, onClose, onSave, habit
   );
 };
 
-  const styles = StyleSheet.create({
-    modalContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: 20,
-      borderRadius: 10,
-      width: '80%',
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 15,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: '#ccc',
-      padding: 10,
-      marginBottom: 15,
-      borderRadius: 5,
-    },
-    daysContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 15,
-    },
-    dayButton: {
-      width: 30,
-      height: 30,
-      borderRadius: 15,
-      borderWidth: 1,
-      borderColor: '#007AFF',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    selectedDay: {
-      backgroundColor: '#007AFF',
-    },
-    dayText: {
-      color: '#007AFF',
-    },
-    selectedDayText: {
-      color: 'white',
-    },
-    addButton: {
-      backgroundColor: '#007AFF',
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-    },
-    addButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    cancelButton: {
-      marginTop: 10,
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-    },
-    cancelButtonText: {
-      color: '#007AFF',
-    },
-      saveButton: {
+
+
+const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 5,
+  },
+  daysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  dayButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedDay: {
+    backgroundColor: '#007AFF',
+  },
+  dayText: {
+    color: '#007AFF',
+  },
+  selectedDayText: {
+    color: 'white',
+  },
+  saveButton: {
     backgroundColor: '#007AFF',
     padding: 10,
     borderRadius: 5,
@@ -158,6 +154,15 @@ const HabitModal: React.FC<HabitModalProps> = ({ visible, onClose, onSave, habit
     color: 'white',
     fontWeight: 'bold',
   },
-  });
+  cancelButton: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: '#007AFF',
+  },
+});
 
 export default HabitModal;

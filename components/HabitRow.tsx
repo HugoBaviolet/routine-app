@@ -1,27 +1,28 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Animated } from 'react-native';
-import { Habit } from '../app/types';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 interface HabitRowProps {
-  habit: Habit;
+  habitName: string;
+  days: { [key: string]: boolean };
   onToggleDay: (day: string) => void;
+  streak: number;
 }
 
-const HabitRow: React.FC<HabitRowProps> = ({ habit, onToggleDay }) => {
-  const daysOfWeek = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+const HabitRow: React.FC<HabitRowProps> = ({ habitName, days, onToggleDay, streak }) => {
+  const daysOrder = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
   const handleDayPress = (day: string) => {
-    if (habit.days[day]) {
+    if (days[day]) {
       Alert.alert(
         "Deselect Day",
-        "Are you sure you want to deselect this day?",
+        "Are you sure you want to mark this day as incomplete?",
         [
           {
             text: "Cancel",
             style: "cancel"
           },
-          { 
-            text: "Confirm", 
+          {
+            text: "Confirm",
             onPress: () => onToggleDay(day),
             style: "destructive"
           }
@@ -33,32 +34,26 @@ const HabitRow: React.FC<HabitRowProps> = ({ habit, onToggleDay }) => {
   };
 
   return (
-    <Animated.View style={styles.container}>
-      <View style={styles.fixedContent}>
-        <Text style={styles.habitName}>{habit.name}</Text>
+    <View style={styles.container}>
+      <Text style={styles.habitName}>{habitName}</Text>
+      <View style={styles.daysContainer}>
+        {daysOrder.map((day) => (
+          days.hasOwnProperty(day) && (
+            <View key={day} style={styles.dayColumn}>
+              <Text style={styles.dayLabel}>{day}</Text>
+              <TouchableOpacity
+                style={[styles.dayBox, days[day] && styles.completedDay]}
+                onPress={() => handleDayPress(day)}
+              />
+            </View>
+          )
+        ))}
       </View>
-      <Animated.View style={styles.swipeableContent}>
-        <View style={styles.centerContainer}>
-          <View style={styles.daysContainer}>
-            {daysOfWeek.map((day) => (
-              habit.days.hasOwnProperty(day) && (
-                <View key={day} style={styles.dayColumn}>
-                  <Text style={styles.dayLabel}>{day}</Text>
-                  <TouchableOpacity
-                    style={[styles.dayBox, habit.days[day] && styles.completedDay]}
-                    onPress={() => handleDayPress(day)}
-                  />
-                </View>
-              )
-            ))}
-          </View>
-        </View>
-        <View style={styles.streakContainer}>
-          <Text style={styles.streakIcon}>🔥</Text>
-          <Text style={styles.streakNumber}>{habit.streak || 0}</Text>
-        </View>
-      </Animated.View>
-    </Animated.View>
+      <View style={styles.streakContainer}>
+        <Text style={styles.streakIcon}>🔥</Text>
+        <Text style={styles.streakNumber}>{streak}</Text>
+      </View>
+    </View>
   );
 };
 
@@ -66,27 +61,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     backgroundColor: 'white',
   },
-  fixedContent: {
-    position: 'absolute',
-    left: 16,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  swipeableContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 120, // Adjust this value based on the width of your habit name
-    paddingRight: 16,
-    paddingVertical: 16,
-  },
   habitName: {
+    flex: 2,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -99,32 +80,32 @@ const styles = StyleSheet.create({
   },
   dayColumn: {
     alignItems: 'center',
-    marginHorizontal: 4,  
+    marginHorizontal: 4,
   },
   dayLabel: {
     fontSize: 12,
-    marginBottom: 4,  
+    marginBottom: 4,
   },
   dayBox: {
-    width: 28,  
-    height: 28,  
-    borderRadius: 8,  
-    borderWidth: 1,  
-    borderColor: '#007AFF',  
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#007AFF',
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: "#000", 
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
-    elevation: 3,  
+    elevation: 3,
   },
   completedDay: {
-    backgroundColor: '#34C759',  
+    backgroundColor: '#34C759',
     borderColor: '#34C759',
   },
   streakContainer: {
@@ -140,7 +121,7 @@ const styles = StyleSheet.create({
   streakNumber: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginRight: -5
+    marginRight: -5,
   },
 });
 
