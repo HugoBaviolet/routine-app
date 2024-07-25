@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import Title from '../../components/Title';
 import HabitList from '../../components/HabitList';
 import AddHabitButton from '../../components/AddHabitButton';
-import AddHabitModal from '../../components/AddHabitModal';
+import HabitModal from '../../components/HabitModal';
 import { Habit } from '../types'
 
 const DashboardScreen: React.FC = () => {
@@ -20,10 +20,10 @@ const DashboardScreen: React.FC = () => {
       <Title text="Habit Dashboard" />
       <HabitList habits={habits} setHabits={setHabits} />
       <AddHabitButton onPress={() => setIsModalVisible(true)} />
-      <AddHabitModal
+      <HabitModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        onAdd={addNewHabit}
+        onSave={addNewHabit}
       />
     </View>
   );
